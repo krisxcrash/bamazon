@@ -15,14 +15,30 @@ var connection = mysql.createConnection({
 
   connection.connect(function(err) {
       if (err) throw err;
-      runItems();
   });
 
-  function runItems() {
+//run function to display all items from database
+
+connection.query("SELECT * FROM products", function(err, results, fields) {
+    if(err){
+        console.log(err.stack);
+    } else {
+        for (var i = 0; i < results.length; i++) {
+            console.log("Item ID: " + results[i].item_id);
+            console.log("Product ID: " + results[i].product_name);
+            console.log("Department: " + results[i].department_name);
+            console.log("Price: " + results[i].price);
+            console.log("Inventory: " + results[i].stock_quantity);
+        }
+    }
+    runItems(results);
+})
+
+  function runItems(results) {
     inquirer
         .prompt([
             {
-                name: "product_id",
+                name: "item_id",
                 type: "input",
                 message: "What is the ID of the product you would like to buy?"
             },
@@ -40,17 +56,23 @@ var connection = mysql.createConnection({
                     }
             }
         ])
+        .then(function(answer){
+            updateQuantity(results, answer);
+
+        })//make sure to add connection.end();
   };
 
-function updateQuantity() {
-    var query = connection.query(
-        "UPDATE stock_quantity SET ? WHERE ?",
+function updateQuantity(results, answer) {
+    console.log("qty " + results[answer.item_id -1].stock_quantity)
+    console.log(answer.item_id -1);
+connection.query(
+        "UPDATE products SET ? WHERE ?",
         [
             {
-                stock_quantity: 10
+                stock_quantity: results[answer.item_id -1].stock_quantity -  answer.quantity 
             }, 
             {
-                product_id: "sweater"//user input
+                item_id: answer.item_id
             }
         ]
     )
