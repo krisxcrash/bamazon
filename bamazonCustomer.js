@@ -33,6 +33,7 @@ var connection = mysql.createConnection({
                 validate: function(value) {
                     if (isNaN(value) === false) {
                         return true;
+                        var customerPurchase = value;
                         updateQuantity();
                     }
                     return false;
@@ -46,11 +47,12 @@ function updateQuantity() {
         "UPDATE stock_quantity SET ? WHERE ?",
         [
             {
-                stock_quantity: -1
+                stock_quantity: 10
             }, 
             {
-                product_id: test//user input
+                product_id: "sweater"//user input
             }
         ]
     )
 }
+
