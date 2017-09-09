@@ -23,12 +23,14 @@ connection.query("SELECT * FROM products", function(err, results, fields) {
     if(err){
         console.log(err.stack);
     } else {
+        console.log("\n\nHere is a list of our current items:");
+
         for (var i = 0; i < results.length; i++) {
-            console.log("Item ID: " + results[i].item_id);
+            console.log("\nItem ID: " + results[i].item_id);
             console.log("Product ID: " + results[i].product_name);
             console.log("Department: " + results[i].department_name);
             console.log("Price: " + results[i].price);
-            console.log("Inventory: " + results[i].stock_quantity);
+            console.log("Inventory: " + results[i].stock_quantity +"\n\n");
         }
     }
     runItems(results);
@@ -57,14 +59,20 @@ connection.query("SELECT * FROM products", function(err, results, fields) {
             }
         ])
         .then(function(answer){
-            updateQuantity(results, answer);
+            var answerQty = parseInt(answer.quantity);
+            var stockQty = parseInt(results[answer.item_id -1].stock_quantity);
 
-        })//make sure to add connection.end();
+            if (answerQty > stockQty) {
+                console.log("There is not enough inventory to process your request");
+                runItems();
+            } else {
+                updateQuantity(results, answer);
+                runItems();
+            }
+        })
   };
 
 function updateQuantity(results, answer) {
-    console.log("qty " + results[answer.item_id -1].stock_quantity)
-    console.log(answer.item_id -1);
 connection.query(
         "UPDATE products SET ? WHERE ?",
         [
